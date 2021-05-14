@@ -7,7 +7,7 @@ using namespace std;
 class Solution {
 public:
     vector<int> twoSum(vector<int>& nums, int target) {
-        std::unordered_map<int, int> map;
+        std::unordered_map<int, int> map; // key : nums[i]  value : i
         std::vector<int> res;
 
         for(int i = 0; i < nums.size(); i++) {
