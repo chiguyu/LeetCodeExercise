@@ -1,0 +1,18 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"utility": "cpp",
+			"queue": "cpp",
+			"type_traits": "cpp",
+			"set": "cpp",
+			"vector": "cpp",
+			"unordered_map": "cpp",
+			"map": "cpp"
+		}
+	}
+}
