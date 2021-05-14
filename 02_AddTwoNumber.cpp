@@ -3,7 +3,9 @@
 struct ListNode {
     int val;
     ListNode *next;
-    ListNode(int x) : val(x), next(NULL) {}
+    ListNode() : val(0), next(nullptr) {}
+    ListNode(int x) : val(x), next(nullptr) {}
+    ListNode(int x, ListNode *next) : val(x), next(next) {}
 };
 
 class Solution {
@@ -12,28 +14,32 @@ public:
         ListNode *p1 = l1;
         ListNode *p2 = l2;
         int carrier = 0;
-        ListNode *res = new ListNode(-1);
-        ListNode *ret = res;
+        ListNode *head = new ListNode(-1);
+        ListNode *current = head;
 
-        while(p1 || p2) {
-            int sum = (p1 == NULL ? 0 : p1->val) + (p2 == NULL ? 0 : p2->val) + carrier;
-            carrier = sum / 10;
+        while (p1 || p2) {
+            int sum = (p1 == nullptr ? 0 : p1->val) + (p2 == nullptr ? 0 : p2->val) + carrier;
+            carrier = sum < 10 ? 0 : 1;
 
-            ListNode *temp = new ListNode(sum % 10);
-            ret->next = temp;
-            ret = ret->next;
+            ListNode *temp = new ListNode(sum < 10 ? sum : sum - 10);
+            current->next = temp;
+            current = current->next;
 
-            if(p1)
+            if (p1) {
                 p1 = p1->next;
-            if(p2)
+            }
+
+            if (p2) {
                 p2 = p2->next;
+            }
         }
 
-        if(carrier)
-            ret->next = new ListNode(carrier);
+        if (carrier) {
+            current->next = new ListNode(carrier);
+        }
 
-        ListNode *result = res->next;
-        delete res;
-        return result;
+        ListNode *ret = head->next;
+        delete head;
+        return ret;
     }
 };
