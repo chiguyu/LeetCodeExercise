@@ -62,8 +62,10 @@ public:
     vector<vector<string>> accountsMerge(vector<vector<string>>& accounts) {
         int len = accounts.size();
         DisjSet dset(len);
-        unordered_map<string, int> mp_email_id; //哈希表记录 string:邮箱  int:首次出现该邮箱的index
-        /* 遍历每个账号的所有邮箱，当邮箱重复出现时，将2个index连接 */
+
+        /* 哈希表mp_email_id记录，string:邮箱  int:首次出现该邮箱的index
+         * 遍历每个账号的所有邮箱，当邮箱重复出现时，将2个index连接 */
+        unordered_map<string, int> mp_email_id; //
         for (int i = 0; i < len; i++) {
             for (int j = 1; j < accounts[i].size(); j++) {
                 if (mp_email_id.find(accounts[i][j]) != mp_email_id.end()) {
@@ -74,31 +76,28 @@ public:
             }
         }
 
-        unordered_map<int, string> mp_id_name; // 哈希表记录最终合并后结果，int:账号index name:账号名
-        unordered_map<int, set<string>> mp_id_emails;  // 哈希表记录最终合并后结果，int:账号index emails:邮件
-        /* 遍历出现过的所有邮箱，找到对应根节点index，并对应记录name，并合并所有邮箱 */
+        /* 哈希表mp_accounts记录，int:在输入accounts中的index  string:账户名  set<string>:邮箱
+         * 遍历所有出现过的邮箱，哈希表mp_accounts记录合并后的账号 */
+        unordered_map<int, pair<string, set<string>>> mp_accounts;
         for (auto it = mp_email_id.begin(); it != mp_email_id.end(); it++) {
             int root = dset.FindRoot(it->second);
-            if (mp_id_name.find(root) == mp_id_name.end()) {
-                mp_id_name[root] = accounts[it->second][0];
+            if (mp_accounts.find(root) == mp_accounts.end()) {
+                string name = accounts[it->second][0];
+                set<string> emails;
+                emails.insert(it->first);
+                mp_accounts[root] = std::make_pair(name, emails);
+            } else {
+                mp_accounts[root].second.insert(it->first);
             }
-            mp_id_emails[root].insert(it->first);           
         }
 
-        /* 按格式组合出返回值 */
-        vector<vector<string>> res(mp_id_name.size());
-        int index = 0;
-        for (auto it = mp_id_name.begin(); it != mp_id_name.end(); it++) {
-            res[index].push_back(it->second);
-            index++;
-        }
-
-        index = 0;
-        for (auto it = mp_id_emails.begin(); it != mp_id_emails.end(); it++) {
-            for (auto email : it->second) {
-                res[index].push_back(email);
-            }
-            index++;
+        /* 按要求格式组合出返回值 */
+        vector<vector<string>> res;
+        for (auto it = mp_accounts.begin(); it != mp_accounts.end(); it++) {
+            vector<string> account;
+            account.push_back((it->second).first);
+            account.insert(account.end(), (it->second).second.begin(), (it->second).second.end());
+            res.push_back(account);
         }
 
         return res;
