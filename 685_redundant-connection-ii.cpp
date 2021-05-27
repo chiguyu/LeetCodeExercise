@@ -51,24 +51,24 @@ public:
 
 class Solution {
 public:
-    vector<int> findRedundantConnection(const vector<vector<int>>& edges, const vector<int> & skip) {
+    vector<int> findRedundantConnection(const vector<vector<int>>& edges, const int & skip) {
         vector<int> res;
         int length = edges.size();
         DisjSet dset(length + 1);
-        for (auto edge : edges) {
-            if (edge[0] == skip[0] && edge[1] == skip[1]) {
+        for (int i = 0; i < edges.size(); i++) {
+            if (i == skip) {
                 continue;
             }
-            if (dset.IsConnected(edge[0], edge[1])) {
-                res = edge;
+            if (dset.IsConnected(edges[i][0], edges[i][1])) {
+                res = edges[i];
                 break;
             }
-            dset.DoUnion(edge[0], edge[1]);
+            dset.DoUnion(edges[i][0], edges[i][1]);
         }
         return res;
     }
 
-    bool hasCircle(const vector<vector<int>>& edges, const vector<int> & skip) {
+    bool hasCircle(const vector<vector<int>>& edges, const int & skip) {
         vector<int> res = findRedundantConnection(edges, skip);
         return res.size() != 0;
     }
@@ -78,23 +78,22 @@ public:
         int max_size = edges.size();
         unordered_map<int, vector<int>> mp;  //KEY为当前节点编号，Value为父节点数组
         int double_parent_id = -1;
+        int skip = -1;
         /* 遍历所有的边，找到入度为2的点并储存在hash中，若入度为2的点不存在则存在环 */
         for (int i = 0; i < max_size; i++) {
             mp[edges[i][1]].push_back(edges[i][0]);
             if (mp[edges[i][1]].size() == 2) {
                 double_parent_id = edges[i][1];
+                skip = i;
                 break;                
             }            
         }
 
-        vector<int> skip;
         if (double_parent_id == -1) { // 入度为2的点不存在,按无向图处理
-            skip = {double_parent_id, double_parent_id};
             res = findRedundantConnection(edges, skip);
         } else { // 入度为2的点对应的2条边，必有一条是冗余边
-            skip = {mp[double_parent_id].back(), double_parent_id};
             if (!hasCircle(edges, skip)) {
-                return skip;
+                return edges[skip];
             } else {
                 return {mp[double_parent_id].front(), double_parent_id};
             }
