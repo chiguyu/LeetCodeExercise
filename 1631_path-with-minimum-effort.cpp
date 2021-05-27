@@ -51,26 +51,32 @@ public:
 
 class Solution {
 public:
-    struct cmp
+    struct Edge
     {
-        bool operator()(const pair<pair<int,int>,int> & left, const pair<pair<int,int>,int> & right) {
-            return left.second > right.second;
-        }
+        int start;
+        int end;
+        int weight;
+        Edge(int start, int end, int weight) : start(start), end(end), weight(weight) {}
     };
     
     int minimumEffortPath(vector<vector<int>>& heights) {
         /* 按行优先为每个点编号，按向右、向下的方向计算出高度差，并压入最小优先队列 */
         int rows = heights.size();
         int cols = heights[0].size();
-        priority_queue<pair<pair<int,int>,int>,vector<pair<pair<int,int>,int>>, cmp> pq;
+        auto cmp = [](const Edge & left, const Edge & right) {
+            return left.weight > right.weight;
+        };
+        priority_queue<Edge, vector<Edge>, decltype(cmp)> pq(cmp);
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 int curPos = i * cols + j;
                 if (i < rows - 1) { // 方向：下
-                    pq.push(make_pair(make_pair(curPos, curPos + cols), abs(heights[i][j] - heights[i + 1][j])));
+                    Edge eg(curPos, curPos + cols, abs(heights[i][j] - heights[i + 1][j]));
+                    pq.push(eg);
                 }
                 if (j < cols - 1) { //方向：右
-                    pq.push(make_pair(make_pair(curPos, curPos + 1), abs(heights[i][j] - heights[i][j + 1])));
+                    Edge eg(curPos, curPos + 1, abs(heights[i][j] - heights[i][j + 1]));
+                    pq.push(eg);
                 }
             }
         }
@@ -80,8 +86,8 @@ public:
         DisjSet dset(max_size);
         int res = 0;
         while (!dset.IsConnected(0, max_size - 1) && !pq.empty()) {
-            res = pq.top().second;
-            dset.DoUnion(pq.top().first.first, pq.top().first.second);
+            res = pq.top().weight;
+            dset.DoUnion(pq.top().start, pq.top().end);
             pq.pop();
         }
 
