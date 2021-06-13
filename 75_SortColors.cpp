@@ -5,6 +5,12 @@
 
 using namespace std;
 
+/*
+使用桶排序思路解决
+1.创建red/white/blue 3种空桶
+2.遍历输入数组，依次将数据放入合适的桶中
+3.合并3个桶的数据，并写入nums
+*/
 class Solution {
 public:
     void sortColors(vector<int>& nums) {
@@ -25,7 +31,7 @@ public:
             }
         }
         
-        nums.erase(nums.begin(), nums.end());
+        nums.clear();
         nums.insert(nums.end(), red.begin(), red.end());
         nums.insert(nums.end(), white.begin(), white.end());
         nums.insert(nums.end(), blue.begin(), blue.end());
