@@ -1,45 +1,48 @@
 #include <iostream>
 #include <list>
 #include <iterator>
-#include <unordered_map>
+#include <map>
+#include <algorithm>
 
 using namespace std;
 
+/*
+1.使用双向链表保存数据，node格式为pair<key,value>
+2.使用map保存key及在双向链表中对应的迭代器
+3.利用map可以logn时间复杂度内获取到迭代器，进一步获取到value; 同时可以使用list容器的slice函数常数时间内做node的移动
+*/
 class LRUCache {
+private:
+    int cap;
+    list<pair<int,int>> lst;
+    map<int, list<pair<int,int>>::iterator> mp;
+
 public:
-    LRUCache(int capacity) {
-        cap = capacity;
+    LRUCache(int capacity) : cap(capacity){
     }
-    
+
     int get(int key) {
-        unordered_map<int, std::pair<int,int>>::iterator it = mp.find(key);
-        if(it != mp.end()) {
-            l.splice(l.begin(), l, std::find(l.begin(), l.end(), it->second));
-            return it->second.second;
-        } else {
-            return -1;
+        int res = -1;
+        auto it = mp.find(key);
+        if (it != mp.end()) {
+            res = it->second->second;
+            lst.splice(lst.begin(), lst, it->second);
         }
+        return res;
     }
     
     void put(int key, int value) {
-        unordered_map<int, std::pair<int,int>>::iterator it = mp.find(key);
-        if(it != mp.end()) {
-            l.erase(std::find(l.begin(), l.end(), it->second));
-            it->second.second = value;
-            l.push_front(it->second);
+        auto it = mp.find(key);
+        if (it != mp.end()) {
+            it->second->second = value;
+            lst.splice(lst.begin(), lst, it->second);
         } else {
-            std::pair<int,int> temp = std::make_pair(key, value);
-            mp[key] = temp;
-            l.push_front(temp);
-            if(l.size() > cap) {
-                mp.erase(l.rbegin()->first);
-                l.pop_back();               
+            lst.push_front(std::make_pair(key, value));
+            mp[key] = lst.begin();
+            if (lst.size() > cap) {
+                mp.erase(lst.rbegin()->first);
+                lst.pop_back();
             }
         }
     }
-
-private:
-    unordered_map<int, std::pair<int,int>> mp;
-    std::list<std::pair<int,int>> l;
-    int cap;
 };
